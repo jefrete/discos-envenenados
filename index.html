@@ -172,12 +172,12 @@
         <i class="ph-bold ph-playlist text-amber-500"></i> Colección de Discos
       </h2>
       <button onclick="openModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-neutral-950 text-xs md:text-sm font-bold rounded-lg transition flex items-center gap-2 shadow-md">
-        <i class="ph-bold ph-plus"></i> Añadir Disco
+        <i class="ph-bold ph-plus"></i> Añadir Disco / Playlist
       </button>
     </div>
 
     <!-- Carrusel / Grid de Discos -->
-    <div id="records-shelf" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+    <div id="records-shelf" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar min-h-[160px]">
       <!-- Los discos se renderizan dinámicamente aquí mediante JavaScript -->
     </div>
   </footer>
@@ -186,7 +186,7 @@
   <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-neutral-900 border-2 border-amber-600 p-6 rounded-2xl max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-amber-400">Añadir Nuevo Vinilo</h3>
+        <h3 class="text-lg font-bold text-amber-400">Añadir Disco o Playlist</h3>
         <button onclick="closeModal()" class="text-neutral-400 hover:text-white text-xl">
           <i class="ph-bold ph-x"></i>
         </button>
@@ -194,23 +194,23 @@
       
       <form id="add-record-form" onsubmit="handleAddRecord(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Título de la Canción</label>
-          <input type="text" id="input-title" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Bohemian Rhapsody">
+          <label class="block text-xs font-semibold text-neutral-300 mb-1">Título de la Canción o Álbum</label>
+          <input type="text" id="input-title" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Vitrola Envenenada">
         </div>
         
         <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Artista</label>
-          <input type="text" id="input-artist" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Queen">
+          <label class="block text-xs font-semibold text-neutral-300 mb-1">Artista / Banda</label>
+          <input type="text" id="input-artist" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Artista Oficial">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Link o ID de YouTube</label>
-          <input type="text" id="input-youtube" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="https://www.youtube.com/watch?v=fJ9rUzIMcZQ">
+          <label class="block text-xs font-semibold text-neutral-300 mb-1">Link de YouTube o iFrame (Video o Playlist)</label>
+          <input type="text" id="input-youtube" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. https://www.youtube.com/embed/videoseries?list=OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">URL de la Carátula (Opcional)</label>
-          <input type="url" id="input-cover" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Dejar en blanco para usar la miniatura de YT">
+          <label class="block text-xs font-semibold text-neutral-300 mb-1">URL de la Carátula (Imagen)</label>
+          <input type="url" id="input-cover" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Pegá el link directo a tu imagen (JPG/PNG)">
         </div>
 
         <div class="flex justify-end gap-3 pt-2">
@@ -225,33 +225,38 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
-    // Colección de discos precargados de ejemplo (Soporta videoId o playlistId)
+    // Colección de discos precargados por defecto
     let catalog = [
       {
         listId: 'OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao',
-        title: 'Vitrola Envenenada (Álbum Oficial)',
-        artist: 'Listado Oficial YT',
-        cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&q=80',
+        title: 'Vitrola Envenenada',
+        artist: 'Álbum Oficial',
+        cover: 'https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=400&q=80',
         type: 'playlist'
       },
       {
         id: 'fJ9rUzIMcZQ',
         title: 'Bohemian Rhapsody',
         artist: 'Queen',
-        cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&q=80',
+        cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80',
         type: 'video'
       },
       {
         id: 'L_LUpnjgPso',
         title: 'Synthesizer Retro Wave',
         artist: 'Synthwave Mix',
-        cover: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300&q=80',
+        cover: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&q=80',
         type: 'video'
       }
     ];
 
     let player;
-    let currentRecord = null;
+    let currentRecord = catalog[0];
+
+    // Ejecución inicial garantizada para renderizar estantería inmediatamente
+    window.addEventListener('DOMContentLoaded', () => {
+      renderShelf();
+    });
 
     // 1. Inicialización de la API de YouTube
     function onYouTubeIframeAPIReady() {
@@ -274,7 +279,7 @@
 
     function onPlayerReady(event) {
       renderShelf();
-      loadRecord(catalog[0], false); // Cargar el primer disco (Vitrola Envenenada) sin autoplay
+      loadRecord(catalog[0], false);
     }
 
     // 2. Control de estado (PLAYING, PAUSED, ENDED)
@@ -286,7 +291,6 @@
       const playIcon = document.getElementById('play-icon');
 
       if (event.data === YT.PlayerState.PLAYING) {
-        // En reproducción: animar vinilo y mover aguja
         vinyl.classList.add('vinyl-spinning');
         vinyl.classList.remove('vinyl-paused');
         tonearm.classList.add('playing');
@@ -295,7 +299,6 @@
         statusText.innerText = 'REPRODUCIENDO';
         playIcon.className = 'ph-fill ph-pause text-xl';
 
-        // Actualizar título si se está reproduciendo una canción de playlist
         if (player.getVideoData && player.getVideoData().title) {
           const ytData = player.getVideoData();
           if (ytData.title && currentRecord.type === 'playlist') {
@@ -303,7 +306,6 @@
           }
         }
       } else {
-        // Pausado o finalizado: detener animación y retirar aguja
         vinyl.classList.add('vinyl-paused');
         tonearm.classList.remove('playing');
 
@@ -317,8 +319,7 @@
     function loadRecord(record, autoPlay = true) {
       currentRecord = record;
       
-      // Actualizar el reproductor de YouTube según sea playlist o vídeo único
-      if (player) {
+      if (player && player.loadPlaylist) {
         if (record.type === 'playlist') {
           if (autoPlay) {
             player.loadPlaylist({
@@ -340,12 +341,10 @@
         }
       }
 
-      // Actualizar visualmente la etiqueta del vinilo
       document.getElementById('label-title').innerText = record.title;
       document.getElementById('label-artist').innerText = record.artist;
       document.getElementById('now-playing-title').innerText = `${record.artist} - ${record.title}`;
 
-      // Si tiene una portada personalizada, ponerla de fondo en la etiqueta
       if (record.cover) {
         document.getElementById('vinyl-label').style.backgroundImage = `url('${record.cover}')`;
       } else {
@@ -357,7 +356,7 @@
 
     // 4. Alternar Reproducción / Pausa desde el botón manual
     function togglePlayPause() {
-      if (!player) return;
+      if (!player || !player.getPlayerState) return;
       const state = player.getPlayerState();
       if (state === YT.PlayerState.PLAYING) {
         player.pauseVideo();
@@ -366,37 +365,55 @@
       }
     }
 
+    // Cambiar carátula rápidamente de un disco
+    function changeCoverPrompt(index, event) {
+      event.stopPropagation();
+      const newUrl = prompt('Ingresa la URL de la imagen de carátula para este álbum:');
+      if (newUrl && newUrl.trim() !== '') {
+        catalog[index].cover = newUrl.trim();
+        if (currentRecord === catalog[index]) {
+          loadRecord(catalog[index], false);
+        } else {
+          renderShelf();
+        }
+      }
+    }
+
     // 5. Renderizar la estantería de discos
     function renderShelf() {
       const shelf = document.getElementById('records-shelf');
+      if (!shelf) return;
       shelf.innerHTML = '';
 
-      catalog.forEach((record) => {
+      catalog.forEach((record, index) => {
         const isSelected = currentRecord && (
           (record.type === 'playlist' && currentRecord.listId === record.listId) ||
           (record.type === 'video' && currentRecord.id === record.id)
         );
         
         const card = document.createElement('div');
-        card.className = `flex-shrink-0 w-36 cursor-pointer group bg-neutral-900 p-2 rounded-xl border-2 transition-all ${
+        card.className = `flex-shrink-0 w-36 cursor-pointer group bg-neutral-900 p-2 rounded-xl border-2 transition-all relative ${
           isSelected ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/20' : 'border-neutral-800 hover:border-amber-700'
         }`;
         
         card.onclick = () => loadRecord(record, true);
 
         const defaultThumb = record.type === 'playlist' 
-          ? 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&q=80'
+          ? 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80'
           : `https://img.youtube.com/vi/${record.id}/hqdefault.jpg`;
           
         const coverUrl = record.cover || defaultThumb;
 
         card.innerHTML = `
           <div class="relative aspect-square rounded-lg overflow-hidden mb-2 bg-neutral-950">
-            <img src="${coverUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&q=80'">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+            <img src="${coverUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80'">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
               <i class="ph-fill ${record.type === 'playlist' ? 'ph-playlist' : 'ph-disc'} text-3xl text-amber-400"></i>
             </div>
-            ${record.type === 'playlist' ? '<span class="absolute top-1 right-1 bg-amber-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow">ALBUM</span>' : ''}
+            ${record.type === 'playlist' ? '<span class="absolute top-1 left-1 bg-amber-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow">ALBUM</span>' : ''}
+            <button onclick="changeCoverPrompt(${index}, event)" title="Cambiar carátula" class="absolute bottom-1 right-1 bg-neutral-900/80 hover:bg-amber-500 hover:text-black text-amber-400 p-1 rounded-full text-xs shadow transition opacity-80 group-hover:opacity-100">
+              <i class="ph-bold ph-image"></i>
+            </button>
           </div>
           <div class="text-xs font-bold text-amber-200 truncate">${record.title}</div>
           <div class="text-[10px] text-neutral-400 truncate">${record.artist}</div>
@@ -417,22 +434,18 @@
       document.getElementById('add-modal').classList.remove('flex');
     }
 
-    // Función auxiliar para extraer ID de vídeo o ID de playlist (list=...)
     function parseYouTubeInput(input) {
-      // 1. Verificar si contiene list= (Playlist / Álbum oficial)
       const listMatch = input.match(/[?&]list=([^#\&\?]+)/);
       if (listMatch && listMatch[1]) {
         return { type: 'playlist', id: listMatch[1] };
       }
       
-      // 2. Si no es playlist, buscar el ID del video individual
       const videoRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const videoMatch = input.match(videoRegExp);
       if (videoMatch && videoMatch[2] && videoMatch[2].length === 11) {
         return { type: 'video', id: videoMatch[2] };
       }
 
-      // Si pegó directamente un ID de 11 caracteres (video) o arranca con OLAK... (playlist)
       if (input.startsWith('OLAK5') || input.length > 20) {
         return { type: 'playlist', id: input };
       } else if (input.length === 11) {
@@ -463,7 +476,7 @@
           listId: parsed.id,
           title: title,
           artist: artist,
-          cover: cover || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&q=80',
+          cover: cover || 'https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=400&q=80',
           type: 'playlist'
         };
       } else {
@@ -480,7 +493,6 @@
       closeModal();
       document.getElementById('add-record-form').reset();
       
-      // Cargar y reproducir inmediatamente el nuevo disco/playlist
       loadRecord(newRecord, true);
     }
   </script>
