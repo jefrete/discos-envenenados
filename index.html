@@ -1,500 +1,318 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retro Vinyl Jukebox</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Phosphor Icons -->
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at center, #2a1b14 0%, #120b08 100%);
-      color: #e5dada;
-    }
-    
-    .font-retro {
-      font-family: 'Press Start 2P', cursive;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jukebox de Vinilos Retro</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --accent-color: #ff0055;
+            --text-color: #ffffff;
+            --text-dim: #a0a0a0;
+        }
 
-    /* Animación de rotación del disco */
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    .vinyl-spinning {
-      animation: spin 2.2s linear infinite;
-    }
+        h1 {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+            margin-bottom: 20px;
+        }
 
-    .vinyl-paused {
-      animation-play-state: paused;
-    }
+        .jukebox-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            max-width: 1000px;
+            width: 100%;
+        }
 
-    /* Brazo de aguja (Tonearm) */
-    .tonearm {
-      transform-origin: 22px 22px;
-      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      transform: rotate(-32deg);
-    }
+        /* Reproductor Tocadiscos */
+        .turntable {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            width: 320px;
+        }
 
-    .tonearm.playing {
-      transform: rotate(14deg);
-    }
+        .vinyl-wrapper {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin-bottom: 20px;
+        }
 
-    /* Glows y luces de neón retro */
-    .wood-texture {
-      background: linear-gradient(135deg, #4a2a18 0%, #2b160c 50%, #1c0e07 100%);
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5);
-    }
+        .vinyl-record {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #000 30%, #222 31%, #111 60%, #000 61%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-    .brass-border {
-      border: 4px solid #b38728;
-      box-shadow: 0 0 10px rgba(179, 135, 40, 0.3);
-    }
+        .vinyl-record.spinning {
+            animation: rotate 3s linear infinite;
+        }
 
-    /* Custom scrollbar para la estantería */
-    .custom-scrollbar::-webkit-scrollbar {
-      height: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #1a0f0a;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #b38728;
-      border-radius: 4px;
-    }
-  </style>
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl-cover-center {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #000;
+        }
+
+        /* YouTube Iframe (El reproductor oficial inyectado por la API) */
+        .player-container {
+            width: 100%;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Estantería de Discos */
+        .shelf {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+
+        .shelf h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .disks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .disk-item {
+            background: #2a2a32;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            text-align: center;
+        }
+
+        .disk-item:hover {
+            transform: translateY(-5px);
+            background: #353540;
+        }
+
+        .disk-item img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .disk-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .disk-artist {
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.65em;
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 md:p-8">
+<body>
 
-  <!-- Encabezado / Logo -->
-  <header class="text-center mb-6">
-    <div class="inline-flex items-center gap-3 bg-amber-950/40 px-6 py-2 rounded-full border border-amber-600/30">
-      <i class="ph-bold ph-disc text-3xl text-amber-500 animate-pulse"></i>
-      <h1 class="text-xl md:text-3xl font-retro text-amber-400 tracking-wider">RETRO JUKEBOX</h1>
-    </div>
-    <p class="text-xs md:text-sm text-amber-200/60 mt-2">Selecciona un vinilo para reproducir en vivo con el reproductor oficial</p>
-  </header>
+    <h1>Vitrola Envenenada</h1>
 
-  <!-- Área Principal: Tocadiscos + Reproductor -->
-  <main class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-    
-    <!-- Mueble Tocadiscos (Visualizador) -->
-    <section class="lg:col-span-7 wood-texture rounded-3xl p-6 md:p-8 border-4 border-amber-900/60 relative overflow-hidden">
-      
-      <!-- Detalle superior vintage -->
-      <div class="flex justify-between items-center mb-6 border-b border-amber-800/40 pb-3">
-        <div class="flex items-center gap-2">
-          <span id="status-indicator" class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
-          <span id="status-text" class="text-xs font-semibold tracking-widest text-amber-200/70 uppercase">DETENIDO</span>
-        </div>
-        <div id="now-playing-title" class="text-sm font-medium text-amber-300 truncate max-w-[250px]">
-          Selecciona una canción
-        </div>
-      </div>
-
-      <div class="relative flex justify-center items-center py-4">
-        
-        <!-- Plato del vinilo -->
-        <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-neutral-900 flex items-center justify-center border-4 border-neutral-800 shadow-2xl">
-          
-          <!-- Disco de Vinilo -->
-          <div id="vinyl-record" class="w-60 h-60 md:w-76 md:h-76 rounded-full bg-neutral-950 relative flex items-center justify-center shadow-inner border border-neutral-800 transition-transform">
-            
-            <!-- Surcos del vinilo (Grooves) -->
-            <div class="absolute inset-2 rounded-full border border-neutral-800/60"></div>
-            <div class="absolute inset-6 rounded-full border border-neutral-800/40"></div>
-            <div class="absolute inset-10 rounded-full border border-neutral-800/60"></div>
-            <div class="absolute inset-14 rounded-full border border-neutral-800/40"></div>
-            <div class="absolute inset-18 rounded-full border border-neutral-800/60"></div>
-
-            <!-- Etiqueta central del disco (Center Label) -->
-            <div id="vinyl-label" class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-amber-600 border-4 border-amber-400/80 flex flex-col items-center justify-center p-2 text-center text-neutral-900 shadow-md bg-cover bg-center overflow-hidden">
-              <span id="label-artist" class="text-[10px] font-bold uppercase truncate w-full">RETRO</span>
-              <div class="w-3 h-3 rounded-full bg-neutral-950 border-2 border-amber-200 my-1"></div>
-              <span id="label-title" class="text-[8px] font-semibold truncate w-full">JUKEBOX</span>
+    <div class="jukebox-container">
+        <!-- Tocadiscos Visual -->
+        <div class="turntable">
+            <div class="vinyl-wrapper">
+                <div class="vinyl-record" id="vinyl">
+                    <img src="https://via.placeholder.com/150" id="vinyl-cover" class="vinyl-cover-center" alt="Portada">
+                </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Aguja de tocadiscos (Tonearm) -->
-        <div class="absolute top-2 right-4 md:right-12 z-20 pointer-events-none">
-          <svg class="w-32 h-44 md:w-40 md:h-52 tonearm" id="tonearm" viewBox="0 0 100 150">
-            <!-- Base pivot -->
-            <circle cx="22" cy="22" r="14" fill="#6b7280" stroke="#374151" stroke-width="3" />
-            <circle cx="22" cy="22" r="6" fill="#1f2937" />
-            <!-- Brazo metálico -->
-            <path d="M 22 22 L 35 90 L 50 120" fill="none" stroke="#d1d5db" stroke-width="4" stroke-linecap="round" />
-            <!-- Cartucho y aguja -->
-            <rect x="42" y="118" width="16" height="22" rx="2" fill="#b38728" transform="rotate(15 50 120)" />
-            <circle cx="50" cy="138" r="2" fill="#ef4444" />
-          </svg>
-        </div>
-      </div>
-      
-      <!-- Panel de Controles manuales de reproducción -->
-      <div class="mt-6 flex justify-center items-center gap-4">
-        <button id="btn-play-pause" onclick="togglePlayPause()" class="w-12 h-12 rounded-full bg-amber-500 hover:bg-amber-400 text-neutral-950 flex items-center justify-center transition font-bold shadow-lg">
-          <i id="play-icon" class="ph-fill ph-play text-xl"></i>
-        </button>
-      </div>
-    </section>
-
-    <!-- Reproductor Oficial de YouTube (Cumple Términos de Servicio) -->
-    <section class="lg:col-span-5 flex flex-col items-center">
-      <div class="w-full bg-neutral-900 p-4 rounded-2xl brass-border shadow-2xl">
-        <div class="flex items-center justify-between mb-3 px-1">
-          <span class="text-xs font-semibold text-amber-400 flex items-center gap-2">
-            <i class="ph-bold ph-youtube-logo text-red-500 text-lg"></i> REPRODUCTOR OFICIAL
-          </span>
-          <span class="text-[10px] text-neutral-400">YouTube IFrame API</span>
-        </div>
-        
-        <!-- Contenedor del IFrame de YouTube -->
-        <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-black shadow-inner">
-          <div id="youtube-player"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Selector / Estantería de Vinilos -->
-  <footer class="max-w-6xl mx-auto w-full mt-8">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-base md:text-lg font-bold text-amber-200 flex items-center gap-2">
-        <i class="ph-bold ph-playlist text-amber-500"></i> Colección de Discos
-      </h2>
-      <button onclick="openModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-neutral-950 text-xs md:text-sm font-bold rounded-lg transition flex items-center gap-2 shadow-md">
-        <i class="ph-bold ph-plus"></i> Añadir Disco / Playlist
-      </button>
-    </div>
-
-    <!-- Carrusel / Grid de Discos -->
-    <div id="records-shelf" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar min-h-[160px]">
-      <!-- Los discos se renderizan dinámicamente aquí mediante JavaScript -->
-    </div>
-  </footer>
-
-  <!-- Modal para Añadir Nuevo Disco -->
-  <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-neutral-900 border-2 border-amber-600 p-6 rounded-2xl max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-amber-400">Añadir Disco o Playlist</h3>
-        <button onclick="closeModal()" class="text-neutral-400 hover:text-white text-xl">
-          <i class="ph-bold ph-x"></i>
-        </button>
-      </div>
-      
-      <form id="add-record-form" onsubmit="handleAddRecord(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Título de la Canción o Álbum</label>
-          <input type="text" id="input-title" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Vitrola Envenenada">
-        </div>
-        
-        <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Artista / Banda</label>
-          <input type="text" id="input-artist" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. Artista Oficial">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">Link de YouTube o iFrame (Video o Playlist)</label>
-          <input type="text" id="input-youtube" required class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Ej. https://www.youtube.com/embed/videoseries?list=OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-neutral-300 mb-1">URL de la Carátula (Imagen)</label>
-          <input type="url" id="input-cover" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="Pegá el link directo a tu imagen (JPG/PNG)">
-        </div>
-
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-neutral-800 text-neutral-300 rounded-lg text-xs font-bold hover:bg-neutral-700">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-neutral-950 rounded-lg text-xs font-bold">Guardar Disco</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Carga de la API IFrame de YouTube -->
-  <script src="https://www.youtube.com/iframe_api"></script>
-
-  <script>
-    // Colección de discos precargados por defecto
-    let catalog = [
-      {
-        listId: 'OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao',
-        title: 'Vitrola Envenenada',
-        artist: 'Álbum Oficial',
-        cover: 'https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=400&q=80',
-        type: 'playlist'
-      },
-      {
-        id: 'fJ9rUzIMcZQ',
-        title: 'Bohemian Rhapsody',
-        artist: 'Queen',
-        cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80',
-        type: 'video'
-      },
-      {
-        id: 'L_LUpnjgPso',
-        title: 'Synthesizer Retro Wave',
-        artist: 'Synthwave Mix',
-        cover: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&q=80',
-        type: 'video'
-      }
-    ];
-
-    let player;
-    let currentRecord = catalog[0];
-
-    // Ejecución inicial garantizada para renderizar estantería inmediatamente
-    window.addEventListener('DOMContentLoaded', () => {
-      renderShelf();
-    });
-
-    // 1. Inicialización de la API de YouTube
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('youtube-player', {
-        height: '100%',
-        width: '100%',
-        playerVars: {
-          'autoplay': 0,
-          'controls': 1,
-          'rel': 0,
-          'modestbranding': 1,
-          'origin': window.location.origin
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-
-    function onPlayerReady(event) {
-      renderShelf();
-      loadRecord(catalog[0], false);
-    }
-
-    // 2. Control de estado (PLAYING, PAUSED, ENDED)
-    function onPlayerStateChange(event) {
-      const vinyl = document.getElementById('vinyl-record');
-      const tonearm = document.getElementById('tonearm');
-      const statusIndicator = document.getElementById('status-indicator');
-      const statusText = document.getElementById('status-text');
-      const playIcon = document.getElementById('play-icon');
-
-      if (event.data === YT.PlayerState.PLAYING) {
-        vinyl.classList.add('vinyl-spinning');
-        vinyl.classList.remove('vinyl-paused');
-        tonearm.classList.add('playing');
-        
-        statusIndicator.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
-        statusText.innerText = 'REPRODUCIENDO';
-        playIcon.className = 'ph-fill ph-pause text-xl';
-
-        if (player.getVideoData && player.getVideoData().title) {
-          const ytData = player.getVideoData();
-          if (ytData.title && currentRecord.type === 'playlist') {
-            document.getElementById('now-playing-title').innerText = `${ytData.title}`;
-          }
-        }
-      } else {
-        vinyl.classList.add('vinyl-paused');
-        tonearm.classList.remove('playing');
-
-        statusIndicator.className = 'w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]';
-        statusText.innerText = (event.data === YT.PlayerState.PAUSED) ? 'PAUSADO' : 'DETENIDO';
-        playIcon.className = 'ph-fill ph-play text-xl';
-      }
-    }
-
-    // 3. Cargar un disco o playlist seleccionada
-    function loadRecord(record, autoPlay = true) {
-      currentRecord = record;
-      
-      if (player && player.loadPlaylist) {
-        if (record.type === 'playlist') {
-          if (autoPlay) {
-            player.loadPlaylist({
-              listType: 'playlist',
-              list: record.listId
-            });
-          } else {
-            player.cuePlaylist({
-              listType: 'playlist',
-              list: record.listId
-            });
-          }
-        } else {
-          if (autoPlay) {
-            player.loadVideoById(record.id);
-          } else {
-            player.cueVideoById(record.id);
-          }
-        }
-      }
-
-      document.getElementById('label-title').innerText = record.title;
-      document.getElementById('label-artist').innerText = record.artist;
-      document.getElementById('now-playing-title').innerText = `${record.artist} - ${record.title}`;
-
-      if (record.cover) {
-        document.getElementById('vinyl-label').style.backgroundImage = `url('${record.cover}')`;
-      } else {
-        document.getElementById('vinyl-label').style.backgroundImage = 'none';
-      }
-
-      renderShelf();
-    }
-
-    // 4. Alternar Reproducción / Pausa desde el botón manual
-    function togglePlayPause() {
-      if (!player || !player.getPlayerState) return;
-      const state = player.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) {
-        player.pauseVideo();
-      } else {
-        player.playVideo();
-      }
-    }
-
-    // Cambiar carátula rápidamente de un disco
-    function changeCoverPrompt(index, event) {
-      event.stopPropagation();
-      const newUrl = prompt('Ingresa la URL de la imagen de carátula para este álbum:');
-      if (newUrl && newUrl.trim() !== '') {
-        catalog[index].cover = newUrl.trim();
-        if (currentRecord === catalog[index]) {
-          loadRecord(catalog[index], false);
-        } else {
-          renderShelf();
-        }
-      }
-    }
-
-    // 5. Renderizar la estantería de discos
-    function renderShelf() {
-      const shelf = document.getElementById('records-shelf');
-      if (!shelf) return;
-      shelf.innerHTML = '';
-
-      catalog.forEach((record, index) => {
-        const isSelected = currentRecord && (
-          (record.type === 'playlist' && currentRecord.listId === record.listId) ||
-          (record.type === 'video' && currentRecord.id === record.id)
-        );
-        
-        const card = document.createElement('div');
-        card.className = `flex-shrink-0 w-36 cursor-pointer group bg-neutral-900 p-2 rounded-xl border-2 transition-all relative ${
-          isSelected ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/20' : 'border-neutral-800 hover:border-amber-700'
-        }`;
-        
-        card.onclick = () => loadRecord(record, true);
-
-        const defaultThumb = record.type === 'playlist' 
-          ? 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80'
-          : `https://img.youtube.com/vi/${record.id}/hqdefault.jpg`;
-          
-        const coverUrl = record.cover || defaultThumb;
-
-        card.innerHTML = `
-          <div class="relative aspect-square rounded-lg overflow-hidden mb-2 bg-neutral-950">
-            <img src="${coverUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80'">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-              <i class="ph-fill ${record.type === 'playlist' ? 'ph-playlist' : 'ph-disc'} text-3xl text-amber-400"></i>
+            <!-- Contenedor donde la API inyectará el iframe oficial -->
+            <div class="player-container">
+                <div id="youtube-player"></div>
             </div>
-            ${record.type === 'playlist' ? '<span class="absolute top-1 left-1 bg-amber-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow">ALBUM</span>' : ''}
-            <button onclick="changeCoverPrompt(${index}, event)" title="Cambiar carátula" class="absolute bottom-1 right-1 bg-neutral-900/80 hover:bg-amber-500 hover:text-black text-amber-400 p-1 rounded-full text-xs shadow transition opacity-80 group-hover:opacity-100">
-              <i class="ph-bold ph-image"></i>
-            </button>
-          </div>
-          <div class="text-xs font-bold text-amber-200 truncate">${record.title}</div>
-          <div class="text-[10px] text-neutral-400 truncate">${record.artist}</div>
-        `;
+        </div>
 
-        shelf.appendChild(card);
-      });
-    }
+        <!-- Estantería de Discos -->
+        <div class="shelf">
+            <h2>Colección de Discos</h2>
+            <div class="disks-grid" id="disks-container"></div>
+        </div>
+    </div>
 
-    // 6. Modal y Agregar Nuevo Disco / Playlist
-    function openModal() {
-      document.getElementById('add-modal').classList.remove('hidden');
-      document.getElementById('add-modal').classList.add('flex');
-    }
+    <!-- Script de la API de YouTube -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        /*
+        =============================================================================
+        TUTORIAL: CÓMO CARGAR TUS DISCOS (ÁLBUMES COMPLETOS Y CANCIONES SUELTAS)
+        =============================================================================
+        
+        1. CÓMO OBTENER EL ID PARA UN ÁLBUM COMPLETO (PLAYLIST OFICIAL):
+           - Ve a YouTube y busca el álbum o lista de reproducción.
+           - La URL se verá así: https://www.youtube.com/watch?v=...&list=OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao
+           - Copia SOLO lo que está después de "list=" (ej. OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao).
+           - Pon 'esPlaylist: true' en la configuración del disco.
 
-    function closeModal() {
-      document.getElementById('add-modal').classList.add('hidden');
-      document.getElementById('add-modal').classList.remove('flex');
-    }
+        2. CÓMO OBTENER EL ID PARA UNA CANCIÓN SUELTA:
+           - Ve a YouTube y busca el vídeo individual.
+           - La URL se verá así: https://www.youtube.com/watch?v=jfKfPfyJRdk
+           - Copia SOLO lo que está después de "v=" (ej. jfKfPfyJRdk).
+           - Pon 'esPlaylist: false' en la configuración del disco.
 
-    function parseYouTubeInput(input) {
-      const listMatch = input.match(/[?&]list=([^#\&\?]+)/);
-      if (listMatch && listMatch[1]) {
-        return { type: 'playlist', id: listMatch[1] };
-      }
-      
-      const videoRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-      const videoMatch = input.match(videoRegExp);
-      if (videoMatch && videoMatch[2] && videoMatch[2].length === 11) {
-        return { type: 'video', id: videoMatch[2] };
-      }
+        3. DÓNDE Y CON QUÉ NOMBRE GUARDAR LAS PORTADAS:
+           - Crea una carpeta llamada "portadas" al mismo nivel donde guardas este archivo index.html.
+           - Guarda tus imágenes ahí (te sugiero hacerlas cuadradas, formato .jpg o .png).
+           - Si usas la imagen que compartiste antes, guárdala en esa carpeta. Puedes mantener su nombre original "watermarked_img_11195355707298233413.jpg"[cite: 1] o cambiarle el nombre a uno más corto como "toxic-reign.jpg".
+           - En el código, la ruta se escribe así: "portadas/toxic-reign.jpg" (o el nombre que decidas).
+        =============================================================================
+        */
 
-      if (input.startsWith('OLAK5') || input.length > 20) {
-        return { type: 'playlist', id: input };
-      } else if (input.length === 11) {
-        return { type: 'video', id: input };
-      }
+        const coleccionOriginal = [
+            {
+                // Ejemplo de ÁLBUM COMPLETO
+                id: "OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao", // ID sacado del parámetro list=
+                esPlaylist: true,
+                titulo: "Toxic Reign",
+                artista: "Cyber Gas",
+                caratula: "portadas/watermarked_img_11195355707298233413.jpg" // Ruta a la carpeta de portadas usando el nombre de tu archivo[cite: 1]
+            },
+            {
+                // Ejemplo de CANCIÓN SUELTA
+                id: "jfKfPfyJRdk", // ID sacado del parámetro v=
+                esPlaylist: false,
+                titulo: "Lofi Beats",
+                artista: "Lofi Girl",
+                caratula: "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=300" // También puedes usar links de internet directamente
+            }
+        ];
 
-      return null;
-    }
+        let player;
+        let discoActual = null;
 
-    function handleAddRecord(e) {
-      e.preventDefault();
-      
-      const title = document.getElementById('input-title').value.trim();
-      const artist = document.getElementById('input-artist').value.trim();
-      const rawYt = document.getElementById('input-youtube').value.trim();
-      const cover = document.getElementById('input-cover').value.trim();
+        // Función que inicializa la API oficial de Google de forma legal
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'autoplay': 0, // YouTube requiere autoplay apagado inicialmente para cumplir sus políticas
+                    'controls': 1  // Mantiene los controles visibles
+                },
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
 
-      const parsed = parseYouTubeInput(rawYt);
+        // Controla la animación del vinilo escuchando el estado oficial del Iframe
+        function onPlayerStateChange(event) {
+            const vinyl = document.getElementById('vinyl');
+            // YT.PlayerState.PLAYING significa que la música empezó a sonar (estado 1)
+            if (event.data === YT.PlayerState.PLAYING) {
+                vinyl.classList.add('spinning');
+            } else {
+                vinyl.classList.remove('spinning');
+            }
+        }
 
-      if (!parsed) {
-        alert('Por favor introduce un enlace o código de YouTube o de Playlist (list=...) válido.');
-        return;
-      }
+        // Construye la cuadrícula de discos leyendo la variable coleccionOriginal
+        function cargarEstanteria() {
+            const container = document.getElementById('disks-container');
+            container.innerHTML = '';
 
-      let newRecord;
-      if (parsed.type === 'playlist') {
-        newRecord = {
-          listId: parsed.id,
-          title: title,
-          artist: artist,
-          cover: cover || 'https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=400&q=80',
-          type: 'playlist'
-        };
-      } else {
-        newRecord = {
-          id: parsed.id,
-          title: title,
-          artist: artist,
-          cover: cover || `https://img.youtube.com/vi/${parsed.id}/hqdefault.jpg`,
-          type: 'video'
-        };
-      }
+            coleccionOriginal.forEach((disco, index) => {
+                const el = document.createElement('div');
+                el.className = 'disk-item';
+                el.onclick = () => reproducirDisco(index);
 
-      catalog.push(newRecord);
-      closeModal();
-      document.getElementById('add-record-form').reset();
-      
-      loadRecord(newRecord, true);
-    }
-  </script>
+                el.innerHTML = `
+                    <img src="${disco.caratula}" alt="${disco.titulo}">
+                    <div class="disk-title">${disco.titulo}</div>
+                    <div class="disk-artist">${disco.artista}</div>
+                    <span class="badge">${disco.esPlaylist ? 'ÁLBUM' : 'TEMA'}</span>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // Inyecta el ID correcto en el Iframe dependiendo si es álbum o canción
+        function reproducirDisco(index) {
+            const disco = coleccionOriginal[index];
+            discoActual = disco;
+
+            // Cambia la imagen central del vinilo
+            document.getElementById('vinyl-cover').src = disco.caratula;
+
+            if (disco.esPlaylist) {
+                // Carga la lista completa oficial
+                player.loadPlaylist({
+                    list: disco.id,
+                    listType: 'playlist',
+                    index: 0
+                });
+            } else {
+                // Carga el vídeo individual oficial
+                player.loadVideoById(disco.id);
+            }
+        }
+
+        // Ejecutar la creación de la estantería cuando la página termine de cargar
+        window.onload = cargarEstanteria;
+    </script>
 </body>
 </html>
