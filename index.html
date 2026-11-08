@@ -89,7 +89,7 @@
             border: 4px solid #000;
         }
 
-        /* YouTube Iframe (El reproductor oficial inyectado por la API) */
+        /* YouTube Iframe */
         .player-container {
             width: 100%;
             height: 180px;
@@ -157,16 +157,6 @@
             font-size: 0.75em;
             color: var(--text-dim);
         }
-
-        .badge {
-            display: inline-block;
-            font-size: 0.65em;
-            background: var(--accent-color);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-top: 4px;
-        }
     </style>
 </head>
 <body>
@@ -174,95 +164,71 @@
     <h1>Vitrola Envenenada</h1>
 
     <div class="jukebox-container">
-        <!-- Tocadiscos Visual -->
         <div class="turntable">
             <div class="vinyl-wrapper">
                 <div class="vinyl-record" id="vinyl">
                     <img src="https://via.placeholder.com/150" id="vinyl-cover" class="vinyl-cover-center" alt="Portada">
                 </div>
             </div>
-            <!-- Contenedor donde la API inyectará el iframe oficial -->
             <div class="player-container">
                 <div id="youtube-player"></div>
             </div>
         </div>
 
-        <!-- Estantería de Discos -->
         <div class="shelf">
             <h2>Colección de Discos</h2>
             <div class="disks-grid" id="disks-container"></div>
         </div>
     </div>
 
-    <!-- Script de la API de YouTube -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        /*
-        =============================================================================
-        TUTORIAL: CÓMO CARGAR TUS DISCOS (ÁLBUMES COMPLETOS Y CANCIONES SUELTAS)
-        =============================================================================
-        
-        1. CÓMO OBTENER EL ID PARA UN ÁLBUM COMPLETO (PLAYLIST OFICIAL):
-           - Ve a YouTube y busca el álbum o lista de reproducción.
-           - La URL se verá así: https://www.youtube.com/watch?v=...&list=OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao
-           - Copia SOLO lo que está después de "list=" (ej. OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao).
-           - Pon 'esPlaylist: true' en la configuración del disco.
-
-        2. CÓMO OBTENER EL ID PARA UNA CANCIÓN SUELTA:
-           - Ve a YouTube y busca el vídeo individual.
-           - La URL se verá así: https://www.youtube.com/watch?v=jfKfPfyJRdk
-           - Copia SOLO lo que está después de "v=" (ej. jfKfPfyJRdk).
-           - Pon 'esPlaylist: false' en la configuración del disco.
-
-        3. DÓNDE Y CON QUÉ NOMBRE GUARDAR LAS PORTADAS:
-           - Crea una carpeta llamada "portadas" al mismo nivel donde guardas este archivo index.html.
-           - Guarda tus imágenes ahí (te sugiero hacerlas cuadradas, formato .jpg o .png).
-           - Si usas la imagen que compartiste antes, guárdala en esa carpeta. Puedes mantener su nombre original "watermarked_img_11195355707298233413.jpg"[cite: 1] o cambiarle el nombre a uno más corto como "toxic-reign.jpg".
-           - En el código, la ruta se escribe así: "portadas/toxic-reign.jpg" (o el nombre que decidas).
-        =============================================================================
-        */
-
+        // =============================================================================
+        // AHORA SOLO PEGAS EL ENLACE COMPLETO EN "url". EL CÓDIGO HACE EL RESTO.
+        // =============================================================================
         const coleccionOriginal = [
             {
-                // Ejemplo de ÁLBUM COMPLETO
-                id: "OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao", // ID sacado del parámetro list=
-                esPlaylist: true,
+                url: "https://youtube.com/playlist?list=OLAK5uy_lSm1uzak9h6ch0cuF0v71-Eu9SSZBR-ao&si=FuDxcIcP8qk5X7cX", // Tu enlace crudo
                 titulo: "Toxic Reign",
                 artista: "Cyber Gas",
-                caratula: "portadas/watermarked_img_11195355707298233413.jpg" // Ruta a la carpeta de portadas usando el nombre de tu archivo[cite: 1]
+                caratula: "portadas/watermarked_img_11195355707298233413.jpg" // Usa tu imagen local[cite: 1]
             },
             {
-                // Ejemplo de CANCIÓN SUELTA
-                id: "jfKfPfyJRdk", // ID sacado del parámetro v=
-                esPlaylist: false,
+                url: "https://www.youtube.com/watch?v=jfKfPfyJRdk&ab_channel=LofiGirl", // Enlace crudo de una canción
                 titulo: "Lofi Beats",
                 artista: "Lofi Girl",
-                caratula: "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=300" // También puedes usar links de internet directamente
+                caratula: "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=300"
             }
         ];
 
         let player;
-        let discoActual = null;
 
-        // Función que inicializa la API oficial de Google de forma legal
+        // Función inteligente para limpiar el link
+        function procesarEnlace(urlOriginal) {
+            // Si tiene "list=", extrae el ID de la playlist y descarta el resto
+            const listMatch = urlOriginal.match(/[?&]list=([^&]+)/);
+            if (listMatch) {
+                return { id: listMatch[1], esPlaylist: true };
+            }
+            // Si tiene "v=", extrae el ID del video y descarta el resto
+            const videoMatch = urlOriginal.match(/(?:[?&]v=|youtu\.be\/)([^&]+)/);
+            if (videoMatch) {
+                return { id: videoMatch[1], esPlaylist: false };
+            }
+            return null; // Por si el enlace no es válido
+        }
+
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
                 height: '100%',
                 width: '100%',
-                playerVars: {
-                    'autoplay': 0, // YouTube requiere autoplay apagado inicialmente para cumplir sus políticas
-                    'controls': 1  // Mantiene los controles visibles
-                },
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
+                playerVars: { 'autoplay': 0, 'controls': 1 },
+                events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
-        // Controla la animación del vinilo escuchando el estado oficial del Iframe
         function onPlayerStateChange(event) {
             const vinyl = document.getElementById('vinyl');
-            // YT.PlayerState.PLAYING significa que la música empezó a sonar (estado 1)
             if (event.data === YT.PlayerState.PLAYING) {
                 vinyl.classList.add('spinning');
             } else {
@@ -270,48 +236,42 @@
             }
         }
 
-        // Construye la cuadrícula de discos leyendo la variable coleccionOriginal
         function cargarEstanteria() {
             const container = document.getElementById('disks-container');
             container.innerHTML = '';
 
             coleccionOriginal.forEach((disco, index) => {
+                const infoExtraida = procesarEnlace(disco.url);
+                if (!infoExtraida) return; // Si el enlace está mal, se lo salta
+
                 const el = document.createElement('div');
                 el.className = 'disk-item';
-                el.onclick = () => reproducirDisco(index);
+                el.onclick = () => reproducirDisco(index, infoExtraida);
 
                 el.innerHTML = `
                     <img src="${disco.caratula}" alt="${disco.titulo}">
                     <div class="disk-title">${disco.titulo}</div>
                     <div class="disk-artist">${disco.artista}</div>
-                    <span class="badge">${disco.esPlaylist ? 'ÁLBUM' : 'TEMA'}</span>
                 `;
                 container.appendChild(el);
             });
         }
 
-        // Inyecta el ID correcto en el Iframe dependiendo si es álbum o canción
-        function reproducirDisco(index) {
+        function reproducirDisco(index, infoExtraida) {
             const disco = coleccionOriginal[index];
-            discoActual = disco;
-
-            // Cambia la imagen central del vinilo
             document.getElementById('vinyl-cover').src = disco.caratula;
 
-            if (disco.esPlaylist) {
-                // Carga la lista completa oficial
+            if (infoExtraida.esPlaylist) {
                 player.loadPlaylist({
-                    list: disco.id,
+                    list: infoExtraida.id,
                     listType: 'playlist',
                     index: 0
                 });
             } else {
-                // Carga el vídeo individual oficial
-                player.loadVideoById(disco.id);
+                player.loadVideoById(infoExtraida.id);
             }
         }
 
-        // Ejecutar la creación de la estantería cuando la página termine de cargar
         window.onload = cargarEstanteria;
     </script>
 </body>
